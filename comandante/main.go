@@ -19,7 +19,7 @@ type LogEntry struct {
 var logEntries []LogEntry
 
 type server struct {
-    pb.UnimplementedComandoServiceServer
+    pb.UnimplementedCommandServer
     brokerClient pb.BrokerClient
     clientClocks map[string][]int32
 }
@@ -87,7 +87,7 @@ func main() {
     fmt.Println("Servidor Command en ejecución...")
 
     // Adjuntar el servicio Command al servidor gRPC
-    pb.RegisterComandoServiceServer(grpcServer, commandServer)
+    pb.RegisterCommandServer(grpcServer, commandServer)
 
     // Iniciar el servidor gRPC (bloqueante)
     go func() {
@@ -100,12 +100,8 @@ func main() {
             var base string
             fmt.Scanln(&base)
 
-            fmt.Print("Enter client ID: ")
-            var clientId string
-            fmt.Scanln(&clientId)
-
             // Create a Comando message
-            cmd := &pb.Comando{Sector: sector, Base: base, ClientId: clientId}
+            cmd := &pb.Comando{Sector: sector, Base: base}
 
             // Call the GetSoldados method
             res, err := commandServer.GetSoldados(context.Background(), cmd)
