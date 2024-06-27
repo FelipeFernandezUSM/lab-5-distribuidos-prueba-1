@@ -1,0 +1,14 @@
+# Use the official Go image as the base image
+FROM golang:1.22.2 as builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN go mod download
+
+WORKDIR /app/broker
+
+RUN go build -o main .
+
+CMD ["./main"]
