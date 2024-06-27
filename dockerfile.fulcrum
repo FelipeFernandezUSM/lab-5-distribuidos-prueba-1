@@ -1,0 +1,17 @@
+FROM golang:1.22.2 as builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN go mod download
+
+ARG NUM
+
+WORKDIR /app/fulcrum
+
+RUN go build -o main .
+
+ENV N=$NUM
+
+CMD ["sh", "-c", "./main $N"]
