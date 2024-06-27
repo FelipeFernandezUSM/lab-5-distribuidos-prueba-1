@@ -1,6 +1,6 @@
 module github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1
 
-go 1.22.2
+go 1.18.1
 
 require (
 	google.golang.org/grpc v1.64.0
