@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package broker;
+
+option go_package = "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/proto";
+
+service Broker {
+  rpc RedirectInformant (InformantRequest) returns (FulcrumAddress) {} // Usado por el Informante
+  rpc Mediate (Message) returns (Acknowledgement) {} // Usado por la Vanguardia
+}
+
+message InformantRequest { // Usado por el Informante
+  string command = 1;
+}
+
+message FulcrumAddress { // Usado por el Informante
+  string address = 1;
+}
+
+message Message { // Usado por la Vanguardia
+    string sector = 1;
+    string base = 2;
+    repeated int32 VectorClock = 3;
+    string clientId = 4;
+}
+message Acknowledgement { // Usado por la Vanguardia
+    string acknowledgement = 1;
+    string FulcrumServer = 2;
+    repeated int32 VectorClock = 3;
+}

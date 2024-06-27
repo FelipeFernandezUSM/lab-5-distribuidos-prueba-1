@@ -18,7 +18,7 @@ import (
     "io/ioutil"
 
     "google.golang.org/grpc"
-    pb "github.com/Sistemas-Distribuidos-2023-02/Grupo14-Laboratorio-3/proto"
+    pb "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/proto"
 )
 
 type FulcrumServer struct {
