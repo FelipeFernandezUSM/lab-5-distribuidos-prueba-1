@@ -14,4 +14,8 @@ RUN go build -o main .
 
 ENV N=$NUM
 
+EXPOSE 50056
+EXPOSE 50057
+EXPOSE 50058
+
 CMD ["sh", "-c", "./main $N"]

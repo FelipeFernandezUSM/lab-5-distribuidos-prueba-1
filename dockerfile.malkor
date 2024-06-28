@@ -10,4 +10,6 @@ WORKDIR /app/ingenieros/malkor
 
 RUN go build -o main .
 
+EXPOSE 50053
+
 CMD ["./main"]

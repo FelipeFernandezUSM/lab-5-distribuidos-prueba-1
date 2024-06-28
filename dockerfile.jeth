@@ -10,4 +10,6 @@ WORKDIR /app/ingenieros/jeth
 
 RUN go build -o main .
 
+EXPOSE 50052
+
 CMD ["./main"]

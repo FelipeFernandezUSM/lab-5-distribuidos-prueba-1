@@ -10,4 +10,6 @@ WORKDIR /app/comandante
 
 RUN go build -o main .
 
+EXPOSE 50050
+
 CMD ["./main"]

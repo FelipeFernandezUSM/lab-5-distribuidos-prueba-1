@@ -1,0 +1,2 @@
+SectorAlpha CampamentoAlpha 13
+SectorAlpha Campamentbeta 15
