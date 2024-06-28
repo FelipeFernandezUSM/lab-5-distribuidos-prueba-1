@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "broker.proto";
+
+package fulcrum;
+
+option go_package = "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/proto";
+
+service Fulcrum {
+  rpc ApplyCommand(CommandRequest) returns (CommandResponse) {}
+  rpc ProcessVanguardMessage(broker.Message) returns (broker.Acknowledgement) {}
+  rpc ApplyPropagation(Propagation) returns (PropagationResponse) {}
+}
+
+message CommandRequest {
+  string action = 1;
+  string sector = 2;
+  string base = 3;
+  string newBase = 4;  // Only used for RenombrarBase
+  int32 value = 5;     // Only used for AgregarBase and ActualizarValor
+}
+
+message CommandResponse {
+  repeated int32 vectorClock = 1;
+}
+
+message Propagation {
+  string sector = 1;
+  map<string, int32> state = 2;
+  repeated int32 vectorClock = 3;
+}
+
+message PropagationResponse {
+  bool success = 1;
+  string message = 2;
+}

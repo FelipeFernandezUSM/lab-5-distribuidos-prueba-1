@@ -4,77 +4,27 @@ package broker;
 
 option go_package = "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/proto";
 
-
-// ------------------------------------------------------------ Broker ------------------------------------------------------------
 service Broker {
-  rpc Mediate (FullcrumMessage) returns (Notificacion) {}
-  rpc RedirigirIngenieros (IngenieroPeticion) returns (FulcrumAddress) {}
+  rpc RedirectInformant (InformantRequest) returns (FulcrumAddress) {} // Usado por el Informante
+  rpc Mediate (Message) returns (Acknowledgement) {} // Usado por la Vanguardia
 }
 
-message IngenieroPeticion { // Mensaje que se envía al broker para obtener la dirección del servidor Fulcrum
+message InformantRequest { // Usado por el Informante
   string command = 1;
 }
 
-message FulcrumAddress { // Dirección del servidor Fulcrum
+message FulcrumAddress { // Usado por el Informante
   string address = 1;
 }
 
-message FullcrumMessage { // Mensaje que se envía al servidor Fulcrum
+message Message { // Usado por la Vanguardia
     string sector = 1;
     string base = 2;
     repeated int32 VectorClock = 3;
     string clientId = 4;
 }
-
-message Notificacion { // Respuesta del servidor Fulcrum
-    string notif = 1;
+message Acknowledgement { // Usado por la Vanguardia
+    string acknowledgement = 1;
     string FulcrumServer = 2;
     repeated int32 VectorClock = 3;
-}
-
-// ------------------------------------------------------------ Ingenieros ------------------------------------------------------------
-message Comando {
-  string sector = 1;
-  string base = 2;
-  string clientId = 3;
-}
-message Response {
-  string notif = 1;
-  string FulcrumServer = 2;
-  repeated int32 VectorClock = 3;
-}
-
-service Command {
-  rpc GetIngenieros (Comando) returns (Response);
-}
-
-// ------------------------------------------------------------ Fulcrum ------------------------------------------------------------
-
-service Fulcrum {
-  rpc ApplyCommand(PeticionComando) returns (CommandResponse) {}
-  rpc ProcessVanguardMessage(FullcrumMessage) returns (Notificacion) {}
-  rpc AplicarPropagar(Propagar) returns (PropagationResponse) {}
-}
-
-message PeticionComando {
-  string accion = 1;
-  string sector = 2;
-  string base = 3;
-  string newBase = 4;  // RenombrarBase
-  int32 value = 5;     // AgregarBase y ActualizarValor
-}
-
-message CommandResponse {
-  repeated int32 vectorClock = 1;
-}
-
-message Propagar {
-  string sector = 1;
-  map<string, int32> state = 2;
-  repeated int32 vectorClock = 3;
-}
-
-message PropagationResponse {
-  bool success = 1;
-  string message = 2;
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package command;
+
+option go_package = "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/proto";
+
+// The command to be executed
+message Comando {
+    string sector = 1;
+    string base = 2;
+    string clientId = 3;
+}
+
+// The response from the server
+message Response {
+    string acknowledgement = 1;
+    string FulcrumServer = 2;
+    repeated int32 VectorClock = 3;
+}
+
+// The Vanguard service definition
+service Command {
+    rpc GetSoldados (Comando) returns (Response);
+}
