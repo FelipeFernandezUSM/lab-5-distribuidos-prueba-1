@@ -12,13 +12,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Struct para poder hacer un objeto de base dependiendo si es que esta creado.
 type base struct {
-	nombre      string //Nombre del planeta manejado (registro)
-	relojx      int    //Dimension X del reloj de vector
-	relojy      int    //Dimension Y del reloj de vector
-	relojz      int    //Dimension Z del reloj de vector
-	lastfulcrum string //ip del ultimo fulcrum consultado para este planeta
+	nombre      string
+	relojx      int
+	relojy      int
+	relojz      int
+	lastfulcrum string
 }
 
 // Lista de structs que almacenará de manera eficiente los bases.
@@ -26,7 +25,6 @@ var bases []base
 var direccionBroker = "broker:50051"
 var direccionFulcrum = ""
 
-// Constructor para el planeta, cosa de poder almacenar en memoria la info de los planetas manejados por la consola del informante.
 func Cbase(name string, x int, y int, z int, ip string) (basedata base) {
 	basedata = base{
 		nombre:      name,

@@ -12,13 +12,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Struct para poder hacer un objeto de base dependiendo si es que esta creado.
 type base struct {
-	nombre      string //Nombre del planeta manejado (registro)
-	relojx      int    //Dimension X del reloj de vector
-	relojy      int    //Dimension Y del reloj de vector
-	relojz      int    //Dimension Z del reloj de vector
-	lastfulcrum string //ip del ultimo fulcrum consultado para este planeta
+	nombre      string
+	relojx      int
+	relojy      int
+	relojz      int
+	lastfulcrum string
 }
 
 // Lista de structs que almacenará de manera eficiente los bases.
@@ -26,7 +25,6 @@ var bases []base
 var direccionBroker = "broker:50051"
 var direccionFulcrum = ""
 
-// Constructor para el planeta, cosa de poder almacenar en memoria la info de los planetas manejados por la consola del informante.
 func Cbase(name string, x int, y int, z int, ip string) (basedata base) {
 	basedata = base{
 		nombre:      name,
@@ -46,7 +44,6 @@ func Solicitud(serviceClient pb.BrokerClient, msg string) string {
 	if err != nil {
 		panic("Mensaje no pudo ser creado ni enviado: " + err.Error())
 	}
-	//fmt.Println(res.Body)
 	return res.Address
 }
 
@@ -100,7 +97,7 @@ func sendToFulcrum(ip string, commandParts []string) string {
 			req.Value = int32(value)
 		}
 	case "BorrarBase":
-		// Do nothing, NewBase and Value should remain empty
+		// No se hace nada
 	default:
 		panic("Invalid action: " + commandParts[0])
 	}
@@ -120,7 +117,6 @@ func sendToFulcrum(ip string, commandParts []string) string {
 
 // Procesa los comandos del usuario (Consulta a broker, luego a Fulcrum).
 func processMsg(command string) {
-	//Comando = ["AgregarBase sector base 100"]
 	var comando = strings.Split(command, " ")
 
 	// Validate the command

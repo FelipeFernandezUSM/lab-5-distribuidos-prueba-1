@@ -110,7 +110,7 @@ func main() {
 			}
 
 			// Print the response
-			fmt.Println("Response:", res.GetAcknowledgement())
+			fmt.Println("Response:", res.GetNotificacion())
 			fmt.Println("Vector Clock:", res.GetVectorClock())
 		}
 	}()

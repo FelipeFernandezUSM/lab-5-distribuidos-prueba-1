@@ -39,9 +39,9 @@ func NewFulcrumServer(id int) *FulcrumServer {
 	}
 
 	// Initialize connections to other servers based on ID
-	for i := 0; i < 3; i++ {
+	for i := 1; i <= 3; i++ {
 		if i != id {
-			port := 50056 + i
+			port := 50055 + i
 			conn, err := grpc.Dial(fmt.Sprintf("fulcrum%d:%d", i, port), grpc.WithInsecure())
 			if err != nil {
 				log.Fatalf("Failed to connect to server %d: %v", i, err)
@@ -81,7 +81,6 @@ func (s *FulcrumServer) ProcessCommandMessage(ctx context.Context, in *pb.Mensaj
 
 	// Loop over each line in the file
 	for scanner.Scan() {
-		// Split the line into sector, base, and soldiers
 		parts := strings.Fields(scanner.Text())
 		if len(parts) != 3 {
 			continue
@@ -95,7 +94,7 @@ func (s *FulcrumServer) ProcessCommandMessage(ctx context.Context, in *pb.Mensaj
 				storedClock32[i] = int32(v)
 			}
 
-			// Return the number of soldiers
+			// Return the notification
 			return &pb.Notificacion{
 				Notif:       parts[2],
 				VectorClock: storedClock32,
@@ -111,7 +110,7 @@ func (s *FulcrumServer) AgregarBase(sector string, base string, quantity int) {
 	// If the quantity is 0 and the sector does not exist, return an error
 	if quantity == 0 {
 		if _, ok := s.state[sector]; !ok {
-			log.Println("Cannot create a new sector with a quantity of 0")
+			log.Println("No puede crear un sector con cantidad 0:", sector)
 			return
 		}
 	}
@@ -280,7 +279,6 @@ func (s *FulcrumServer) updateSectorFile(sector string, command string, value st
 	// Handle the command
 	switch command {
 	case "Agregar":
-		// Write to the sector file
 		for base, quantity := range s.state[sector] {
 			_, err = f.WriteString(fmt.Sprintf("%s %s %d\n", sector, base, quantity))
 			if err != nil {
@@ -290,25 +288,20 @@ func (s *FulcrumServer) updateSectorFile(sector string, command string, value st
 		}
 	case "Renombrar":
 		for base := range s.state[sector] {
-			// Read the file line by line
 			lines, err := ioutil.ReadFile(fmt.Sprintf("Sector%s.txt", sector))
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			// Split the file into lines
 			linesSlice := strings.Split(string(lines), "\n")
 
-			// For each line, check if it contains the base that you want to rename
 			for i, line := range linesSlice {
 				if strings.Contains(line, base) {
-					// If it does, replace the base name with the new name
 					linesSlice[i] = strings.Replace(line, base, value, 1)
 				}
 			}
 
-			// Write the lines back to the file
 			err = ioutil.WriteFile(fmt.Sprintf("Sector%s.txt", sector), []byte(strings.Join(linesSlice, "\n")), 0644)
 			if err != nil {
 				log.Println(err)
@@ -317,29 +310,22 @@ func (s *FulcrumServer) updateSectorFile(sector string, command string, value st
 		}
 	case "Actualizar":
 		for base := range s.state[sector] {
-			// Read the file line by line
 			lines, err := ioutil.ReadFile(fmt.Sprintf("Sector%s.txt", sector))
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			// Split the file into lines
 			linesSlice := strings.Split(string(lines), "\n")
 
-			// For each line, check if it contains the base that you want to update
 			for i, line := range linesSlice {
 				if strings.Contains(line, base) {
-					// If it does, split the line into words
 					words := strings.Fields(line)
-					// Replace the old value with the new one
 					words[2] = value
-					// Join the words back into a line
 					linesSlice[i] = strings.Join(words, " ")
 				}
 			}
 
-			// Write the lines back to the file
 			err = ioutil.WriteFile(fmt.Sprintf("Sector%s.txt", sector), []byte(strings.Join(linesSlice, "\n")), 0644)
 			if err != nil {
 				log.Println(err)
@@ -347,28 +333,22 @@ func (s *FulcrumServer) updateSectorFile(sector string, command string, value st
 			}
 		}
 	case "Borrar":
-		// Read the file line by line
 		lines, err := ioutil.ReadFile(fmt.Sprintf("Sector%s.txt", sector))
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		// Split the file into lines
 		linesSlice := strings.Split(string(lines), "\n")
 
-		// Create a new slice to hold the lines that don't contain the base
 		newLines := make([]string, 0)
 
-		// For each line, check if it contains the base that you want to delete
 		for _, line := range linesSlice {
 			if !strings.Contains(line, value) {
-				// If it doesn't, add it to the newLines slice
 				newLines = append(newLines, line)
 			}
 		}
 
-		// Write the newLines back to the file
 		err = ioutil.WriteFile(fmt.Sprintf("Sector%s.txt", sector), []byte(strings.Join(newLines, "\n")), 0644)
 		if err != nil {
 			log.Println(err)
@@ -376,7 +356,6 @@ func (s *FulcrumServer) updateSectorFile(sector string, command string, value st
 		}
 	}
 
-	// Write the vector clock
 	_, err = f.WriteString(fmt.Sprintf("[%d,%d,%d]\n", s.vClocks[sector][0], s.vClocks[sector][1], s.vClocks[sector][2]))
 	if err != nil {
 		log.Println(err)
@@ -403,81 +382,64 @@ func (s *FulcrumServer) ApplyCommand(ctx context.Context, command *pb.CommandReq
 		vectorClock[i] = int32(v)
 	}
 
-	// Return the vector clock of the modified sector
 	return &pb.CommandResponse{
 		VectorClock: vectorClock,
 	}, nil
 }
 
 func (s *FulcrumServer) ApplyPropagation(ctx context.Context, p *pb.Propagation) (*pb.PropagationResponse, error) {
-	// Lock the server state for writing
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Get the current state and vector clock for the sector
 	currentState, currentVC := s.state[p.Sector], s.vClocks[p.Sector]
 
-	// If the sector doesn't exist in the state map, initialize it
 	if currentState == nil {
 		currentState = make(map[string]int)
 		s.state[p.Sector] = currentState
 	}
 
-	// If the sector doesn't exist in the vector clocks map, initialize it
 	if currentVC == nil {
 		currentVC = make([]int, 3)
 		s.vClocks[p.Sector] = currentVC
 	}
 
-	// Convert the incoming state to map[string]int
 	incomingState := make(map[string]int)
 	for k, v := range p.State {
 		incomingState[k] = int(v)
 	}
 
-	// Compare the incoming vector clock with the current vector clock
 	for i, incomingTime := range p.VectorClock {
-		// Ensure currentVC is long enough
 		for len(currentVC) <= i {
 			currentVC = append(currentVC, 0)
 		}
 
 		incomingTimeInt := int(incomingTime)
 		if incomingTimeInt > currentVC[i] {
-			// The incoming state is more recent, so update the server state and vector clock
 			currentState = incomingState
 			currentVC[i] = incomingTimeInt
 		} else if incomingTimeInt < currentVC[i] {
-			// The server state is more recent, so ignore the incoming state
 			continue
 		} else {
-			// The incoming state and server state are concurrent, so resolve the conflict
 			for k, v := range incomingState {
-				// If currentState is nil, initialize it
 				if currentState == nil {
 					currentState = make(map[string]int)
 				}
 
 				if v2, ok := currentState[k]; !ok || v > v2 {
-					// If the key is not in the current state, or the incoming value is greater,
-					// update the current state with the incoming value
 					currentState[k] = v
 				}
 			}
 		}
 	}
 
-	// If the sector doesn't exist in the state map, initialize it
 	if s.state[p.Sector] == nil {
 		s.state[p.Sector] = make(map[string]int)
 	}
 
-	// If the sector doesn't exist in the vector clocks map, initialize it
 	if s.vClocks[p.Sector] == nil {
 		s.vClocks[p.Sector] = make([]int, 3)
 	}
 
-	// Update the server state and vector clock
 	s.state[p.Sector] = currentState
 	s.vClocks[p.Sector] = currentVC
 
@@ -548,7 +510,6 @@ func (s *FulcrumServer) PropagateChanges() {
 			}
 
 			// Send the message to the other server
-			fmt.Println(ctx)
 			_, err := fulcrumClient.ApplyPropagation(ctx, message)
 			if err != nil {
 				log.Println("Failed to propagate changes to server:", err)
@@ -609,26 +570,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Initialize the server
 	s := NewFulcrumServer(id)
 
-	// Load the vector clocks
 	if err := s.loadVectorClocks(); err != nil {
 		log.Fatalf("Failed to load vector clocks: %v", err)
 	}
 
-	// Create a channel to receive OS signals
 	sigs := make(chan os.Signal, 1)
-	// Register the channel to receive interrupt signals
 	signal.Notify(sigs, os.Interrupt)
 
-	// Start a goroutine to propagate changes every 30 seconds
 	go func() {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {
-			// Propagate changes to all other servers
 			s.PropagateChanges()
 		}
 	}()

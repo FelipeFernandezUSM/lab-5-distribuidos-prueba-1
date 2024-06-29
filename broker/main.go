@@ -28,14 +28,16 @@ var fulcrumServers = []string{
 	"fulcrum3:50058",
 }
 
+// Función que redirige a un ingeniero a un servidor Fulcrum
 func (s *server) RedirigirIngeniero(ctx context.Context, in *pb.RequestIngeniero) (*pb.DireccionFullcrum, error) {
 	// Choose a random Fulcrum server
 	address := fulcrumServers[rand.Intn(len(fulcrumServers))]
-	fmt.Printf("Redirecting Informant to %v\n", address)
+	fmt.Printf("Redirigir Ingeniero a %v\n", address) // Print the address of the Fulcrum server
 
-	return &pb.DireccionFullcrum{Address: address}, nil
+	return &pb.DireccionFullcrum{Address: address}, nil // Return the address of the Fulcrum server
 }
 
+// Función que medía entre un sector y una base
 func (s *server) Mediate(ctx context.Context, in *pb.Mensaje) (*pb.Notificacion, error) {
 	address := fulcrumServers[rand.Intn(len(fulcrumServers))]
 
@@ -47,13 +49,14 @@ func (s *server) Mediate(ctx context.Context, in *pb.Mensaje) (*pb.Notificacion,
 
 	client := pb.NewFulcrumClient(conn)
 
+	// Send the message to the Fulcrum server
 	message := &pb.Mensaje{
 		Sector:      in.GetSector(),
 		Base:        in.GetBase(),
 		VectorClock: in.GetVectorClock(),
 	}
-	not, err := client.ProcessCommandMessage(ctx, message)
-	fmt.Printf("Mediating message %v, %v\n", in.GetSector(), in.GetBase())
+	not, err := client.ProcessCommandMessage(ctx, message) // Send the message to the Fulcrum server
+	fmt.Printf("Mensaje de Mediación %v, %v\n", in.GetSector(), in.GetBase())
 	if err != nil {
 		return nil, err
 	}
