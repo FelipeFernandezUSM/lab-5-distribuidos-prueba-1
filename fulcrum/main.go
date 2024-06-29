@@ -39,9 +39,9 @@ func NewFulcrumServer(id int) *FulcrumServer {
     }
 
     // Initialize connections to other servers based on ID
-    for i := 0; i < 3; i++ {
+    for i := 1; i <= 3; i++ {
         if i != id {
-            port := 50056 + i
+            port := 50055 + i
             conn, err := grpc.Dial(fmt.Sprintf("fulcrum%d:%d", i, port), grpc.WithInsecure())
             if err != nil {
                 log.Fatalf("Failed to connect to server %d: %v", i, err)
@@ -548,7 +548,6 @@ func (s *FulcrumServer) PropagateChanges() {
             }
 
             // Send the message to the other server
-            fmt.Println(ctx)
             _, err := fulcrumClient.ApplyPropagation(ctx, message)
             if err != nil {
                 log.Println("Failed to propagate changes to server:", err)
