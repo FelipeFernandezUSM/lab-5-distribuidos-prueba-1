@@ -32,15 +32,17 @@ type FulcrumServer struct {
 
 func NewFulcrumServer(id int) *FulcrumServer {
     s := &FulcrumServer{
-        id:     id,
-        state:  make(map[string]map[string]int),
-        vClocks: make(map[string][]int),
+        id:       id,
+        state:    make(map[string]map[string]int),
+        vClocks:  make(map[string][]int),
+        otherServers: make([]*grpc.ClientConn, 0),
     }
 
-    // Initialize the otherServers slice
+    // Initialize connections to other servers based on ID
     for i := 0; i < 3; i++ {
         if i != id {
-            conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", 50056+i), grpc.WithInsecure())
+            port := 50056 + i
+            conn, err := grpc.Dial(fmt.Sprintf("fulcrum%d:%d", i, port), grpc.WithInsecure())
             if err != nil {
                 log.Fatalf("Failed to connect to server %d: %v", i, err)
             }

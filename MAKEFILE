@@ -1,42 +1,39 @@
 # Create a Docker network for inter-container communication
 docker-network: ## Creates a custom Docker network
-	@docker network create mynetwork
+	@docker network create lab5
 
 # Initiates the Docker code for the broker server
 docker-broker: ## Initiates the Docker code for the broker server
 	@docker build -f dockerfile.broker -t broker .
-	@docker run -p 50051:50051 -d --network mynetwork --name broker broker
+	@docker run -p 50051:50051 -d --network lab5 --name broker broker
 
 # Initiates the Docker code for the vanguard server
 docker-vanguardia: ## Initiates the Docker code for the vanguard server
 	@docker build -f dockerfile.comandante -t comandante .
-	@docker run -i -p 50050:50050 --network mynetwork --name comandante comandante
+	@docker run -i -p 50050:50050 --network lab5 --name comandante comandante
 
 # Initiates the Docker code for fulcrum 1
 docker-f1: ## Initiates the Docker code for fulcrum 1
 	@docker build -f dockerfile.fulcrum --build-arg NUM=1 -t fulcrum1 .
-	@docker run -p 50056:50056 -d --network mynetwork --name fulcrum1 fulcrum1
+	@docker run -p 50056:50056 -d --network lab5 --name fulcrum1 fulcrum1
 
 # Initiates the Docker code for fulcrum 2
 docker-f2: ## Initiates the Docker code for fulcrum 2
 	@docker build -f dockerfile.fulcrum --build-arg NUM=2 -t fulcrum2 .
-	@docker run -p 50057:50057 -d --network mynetwork --name fulcrum2 fulcrum2
+	@docker run -p 50057:50057 -d --network lab5 --name fulcrum2 fulcrum2
 
 # Initiates the Docker code for fulcrum 3
 docker-f3: ## Initiates the Docker code for fulcrum 3
 	@docker build -f dockerfile.fulcrum --build-arg NUM=3 -t fulcrum3 .
-	@docker run -p 50058:50058 -d --network mynetwork --name fulcrum3 fulcrum3
+	@docker run -p 50058:50058 -d --network lab5 --name fulcrum3 fulcrum3
 
 # Initiates the Docker code for Caiatl
 docker-i1: ## Initiates the Docker code for Caiatl
 	@docker build -f dockerfile.jeth -t jeth .
-	@docker run -i -p 50052:50052 --network mynetwork --name jeth jeth
+	@docker run -i -p 50052:50052 --network lab5 --name jeth jeth
 
 # Initiates the Docker code for Osiris
 docker-i2: ## Initiates the Docker code for Osiris
 	@docker build -f dockerfile.malkor -t malkor .
-	@docker run -i -p 50053:50053 --network mynetwork --name malkor malkor
+	@docker run -i -p 50053:50053 --network lab5 --name malkor malkor
 
-# Convenience target to build and run all containers
-docker-all: docker-network docker-broker docker-vanguardia docker-f1 docker-f2 docker-f3 docker-i1 docker-i2
-	@echo "All containers are up and running on the custom network."

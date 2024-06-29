@@ -23,7 +23,7 @@ type base struct {
 
 // Lista de structs que almacenará de manera eficiente los bases.
 var bases []base
-var direccionBroker = "localhost:50051"
+var direccionBroker = "broker:50051"
 var direccionFulcrum = ""
 
 // Constructor para el planeta, cosa de poder almacenar en memoria la info de los planetas manejados por la consola del informante.

@@ -73,7 +73,7 @@ func main() {
     grpcServer := grpc.NewServer()
 
     // Conectar con el servidor Broker
-    conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+    conn, err := grpc.Dial("broker:50051", grpc.WithInsecure())
     if err != nil {
         log.Fatalf("Fallo al conectar con el servidor Broker: %v", err)
     }
