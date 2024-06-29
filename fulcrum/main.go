@@ -53,7 +53,7 @@ func NewFulcrumServer(id int) *FulcrumServer {
 	return s
 }
 
-func (s *FulcrumServer) ProcessVanguardMessage(ctx context.Context, in *pb.Mensaje) (*pb.Notificacion, error) {
+func (s *FulcrumServer) ProcessCommandMessage(ctx context.Context, in *pb.Mensaje) (*pb.Notificacion, error) {
 	fmt.Println("Pedido de comandante recibido:", in.Sector, in.Base)
 	// Get the stored vector clock for the sector
 	storedClock, ok := s.vClocks[in.Sector]
@@ -97,8 +97,8 @@ func (s *FulcrumServer) ProcessVanguardMessage(ctx context.Context, in *pb.Mensa
 
 			// Return the number of soldiers
 			return &pb.Notificacion{
-				Notificacion: parts[2],
-				VectorClock:  storedClock32,
+				Notif:       parts[2],
+				VectorClock: storedClock32,
 			}, nil
 		}
 	}
@@ -512,7 +512,7 @@ func (s *FulcrumServer) ApplyPropagation(ctx context.Context, p *pb.Propagation)
 		}
 	}
 
-	return &pb.PropagationResponse{Success: true, Mensaje: "Propagation applied successfully"}, nil
+	return &pb.PropagationResponse{Success: true, Message: "Propagation applied successfully"}, nil
 }
 
 func (s *FulcrumServer) PropagateChanges() {

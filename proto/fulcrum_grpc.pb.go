@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FulcrumClient interface {
 	ApplyCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
-	ProcessVanguardMessage(ctx context.Context, in *Mensaje, opts ...grpc.CallOption) (*Notificacion, error)
+	ProcessCommandMessage(ctx context.Context, in *Mensaje, opts ...grpc.CallOption) (*Notificacion, error)
 	ApplyPropagation(ctx context.Context, in *Propagation, opts ...grpc.CallOption) (*PropagationResponse, error)
 }
 
@@ -44,9 +44,9 @@ func (c *fulcrumClient) ApplyCommand(ctx context.Context, in *CommandRequest, op
 	return out, nil
 }
 
-func (c *fulcrumClient) ProcessVanguardMessage(ctx context.Context, in *Mensaje, opts ...grpc.CallOption) (*Notificacion, error) {
+func (c *fulcrumClient) ProcessCommandMessage(ctx context.Context, in *Mensaje, opts ...grpc.CallOption) (*Notificacion, error) {
 	out := new(Notificacion)
-	err := c.cc.Invoke(ctx, "/fulcrum.Fulcrum/ProcessVanguardMessage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fulcrum.Fulcrum/ProcessCommandMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *fulcrumClient) ApplyPropagation(ctx context.Context, in *Propagation, o
 // for forward compatibility
 type FulcrumServer interface {
 	ApplyCommand(context.Context, *CommandRequest) (*CommandResponse, error)
-	ProcessVanguardMessage(context.Context, *Mensaje) (*Notificacion, error)
+	ProcessCommandMessage(context.Context, *Mensaje) (*Notificacion, error)
 	ApplyPropagation(context.Context, *Propagation) (*PropagationResponse, error)
 	mustEmbedUnimplementedFulcrumServer()
 }
@@ -79,8 +79,8 @@ type UnimplementedFulcrumServer struct {
 func (UnimplementedFulcrumServer) ApplyCommand(context.Context, *CommandRequest) (*CommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApplyCommand not implemented")
 }
-func (UnimplementedFulcrumServer) ProcessVanguardMessage(context.Context, *Mensaje) (*Notificacion, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProcessVanguardMessage not implemented")
+func (UnimplementedFulcrumServer) ProcessCommandMessage(context.Context, *Mensaje) (*Notificacion, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessCommandMessage not implemented")
 }
 func (UnimplementedFulcrumServer) ApplyPropagation(context.Context, *Propagation) (*PropagationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApplyPropagation not implemented")
@@ -116,20 +116,20 @@ func _Fulcrum_ApplyCommand_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Fulcrum_ProcessVanguardMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Fulcrum_ProcessCommandMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Mensaje)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FulcrumServer).ProcessVanguardMessage(ctx, in)
+		return srv.(FulcrumServer).ProcessCommandMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fulcrum.Fulcrum/ProcessVanguardMessage",
+		FullMethod: "/fulcrum.Fulcrum/ProcessCommandMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FulcrumServer).ProcessVanguardMessage(ctx, req.(*Mensaje))
+		return srv.(FulcrumServer).ProcessCommandMessage(ctx, req.(*Mensaje))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -164,8 +164,8 @@ var Fulcrum_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Fulcrum_ApplyCommand_Handler,
 		},
 		{
-			MethodName: "ProcessVanguardMessage",
-			Handler:    _Fulcrum_ProcessVanguardMessage_Handler,
+			MethodName: "ProcessCommandMessage",
+			Handler:    _Fulcrum_ProcessCommandMessage_Handler,
 		},
 		{
 			MethodName: "ApplyPropagation",

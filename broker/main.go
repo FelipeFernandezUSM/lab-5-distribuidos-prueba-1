@@ -52,7 +52,7 @@ func (s *server) Mediate(ctx context.Context, in *pb.Mensaje) (*pb.Notificacion,
 		Base:        in.GetBase(),
 		VectorClock: in.GetVectorClock(),
 	}
-	not, err := client.ProcessVanguardMessage(ctx, message)
+	not, err := client.ProcessCommandMessage(ctx, message)
 	fmt.Printf("Mediating message %v, %v\n", in.GetSector(), in.GetBase())
 	if err != nil {
 		return nil, err

@@ -24,7 +24,7 @@ type server struct {
 	clientClocks map[string][]int32
 }
 
-func (s *server) GetSoldados(ctx context.Context, in *pb.Comando) (*pb.Response, error) {
+func (s *server) GetEnemigos(ctx context.Context, in *pb.Comando) (*pb.Response, error) {
 	// Obtener el reloj vectorial más reciente del cliente
 	clientClock, ok := s.clientClocks[in.ClientId]
 	if !ok {
@@ -47,7 +47,7 @@ func (s *server) GetSoldados(ctx context.Context, in *pb.Comando) (*pb.Response,
 
 	// Registrar el comando y la respuesta
 	logEntry := LogEntry{
-		SectorInfo:    fmt.Sprintf("GetSoldados %s %s", in.GetSector(), in.GetBase()),
+		SectorInfo:    fmt.Sprintf("GetEnemigos %s %s", in.GetSector(), in.GetBase()),
 		VectorClock:   ack.GetVectorClock(),
 		FulcrumServer: ack.GetFulcrumServer(),
 	}
@@ -56,7 +56,7 @@ func (s *server) GetSoldados(ctx context.Context, in *pb.Comando) (*pb.Response,
 
 	// Devolver la respuesta del servidor Broker al usuario
 	return &pb.Response{
-		Notificacion:  ack.GetAcknowledgement(),
+		Notificacion:  ack.GetNotif(),
 		FulcrumServer: ack.GetFulcrumServer(),
 		VectorClock:   ack.GetVectorClock(),
 	}, nil
@@ -103,8 +103,8 @@ func main() {
 			// Create a Comando message
 			cmd := &pb.Comando{Sector: sector, Base: base}
 
-			// Call the GetSoldados method
-			res, err := commandServer.GetSoldados(context.Background(), cmd)
+			// Call the GetEnemigos method
+			res, err := commandServer.GetEnemigos(context.Background(), cmd)
 			if err != nil {
 				log.Fatalf("Failed to execute command: %v", err)
 			}

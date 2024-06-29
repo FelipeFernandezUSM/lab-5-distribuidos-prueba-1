@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommandClient interface {
-	GetSoldados(ctx context.Context, in *Comando, opts ...grpc.CallOption) (*Response, error)
+	GetEnemigos(ctx context.Context, in *Comando, opts ...grpc.CallOption) (*Response, error)
 }
 
 type commandClient struct {
@@ -33,9 +33,9 @@ func NewCommandClient(cc grpc.ClientConnInterface) CommandClient {
 	return &commandClient{cc}
 }
 
-func (c *commandClient) GetSoldados(ctx context.Context, in *Comando, opts ...grpc.CallOption) (*Response, error) {
+func (c *commandClient) GetEnemigos(ctx context.Context, in *Comando, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
-	err := c.cc.Invoke(ctx, "/command.Command/GetSoldados", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/command.Command/GetEnemigos", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *commandClient) GetSoldados(ctx context.Context, in *Comando, opts ...gr
 // All implementations must embed UnimplementedCommandServer
 // for forward compatibility
 type CommandServer interface {
-	GetSoldados(context.Context, *Comando) (*Response, error)
+	GetEnemigos(context.Context, *Comando) (*Response, error)
 	mustEmbedUnimplementedCommandServer()
 }
 
@@ -54,8 +54,8 @@ type CommandServer interface {
 type UnimplementedCommandServer struct {
 }
 
-func (UnimplementedCommandServer) GetSoldados(context.Context, *Comando) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSoldados not implemented")
+func (UnimplementedCommandServer) GetEnemigos(context.Context, *Comando) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEnemigos not implemented")
 }
 func (UnimplementedCommandServer) mustEmbedUnimplementedCommandServer() {}
 
@@ -70,20 +70,20 @@ func RegisterCommandServer(s grpc.ServiceRegistrar, srv CommandServer) {
 	s.RegisterService(&Command_ServiceDesc, srv)
 }
 
-func _Command_GetSoldados_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Command_GetEnemigos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Comando)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommandServer).GetSoldados(ctx, in)
+		return srv.(CommandServer).GetEnemigos(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/command.Command/GetSoldados",
+		FullMethod: "/command.Command/GetEnemigos",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommandServer).GetSoldados(ctx, req.(*Comando))
+		return srv.(CommandServer).GetEnemigos(ctx, req.(*Comando))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +96,8 @@ var Command_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CommandServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetSoldados",
-			Handler:    _Command_GetSoldados_Handler,
+			MethodName: "GetEnemigos",
+			Handler:    _Command_GetEnemigos_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
