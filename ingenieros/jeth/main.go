@@ -40,7 +40,7 @@ func Cbase(name string, x int, y int, z int, ip string) (basedata base) {
 
 // Funcion ejecutada por gRPC para enviar el mensaje
 func Solicitud(serviceClient pb.BrokerClient, msg string) string {
-	res, err := serviceClient.RedirectInformant(context.Background(), &pb.InformantRequest{
+	res, err := serviceClient.RedirigirIngeniero(context.Background(), &pb.RequestIngeniero{
 		Command: msg,
 	})
 	if err != nil {
@@ -76,46 +76,46 @@ func sendToFulcrum(ip string, commandParts []string) string {
 	defer conn.Close()
 	serviceClient := pb.NewFulcrumClient(conn)
 
-    // Initialize a CommandRequest with default values
-    req := &pb.CommandRequest{
-        Action:  commandParts[0],
-        Sector:  commandParts[1],
-        Base:    commandParts[2],
-        NewBase: "",
-        Value:   0,
-    }
+	// Initialize a CommandRequest with default values
+	req := &pb.CommandRequest{
+		Action:  commandParts[0],
+		Sector:  commandParts[1],
+		Base:    commandParts[2],
+		NewBase: "",
+		Value:   0,
+	}
 
-    // Handle different actions
-    switch commandParts[0] {
-    case "RenombrarBase":
-        if len(commandParts) > 3 {
-            req.NewBase = commandParts[3]
-        }
-    case "AgregarBase", "ActualizarValor":
-        if len(commandParts) > 3 {
-            value, err := strconv.Atoi(commandParts[3])
-            if err != nil {
-                panic("Invalid value: " + err.Error())
-            }
-            req.Value = int32(value)
-        }
-    case "BorrarBase":
-        // Do nothing, NewBase and Value should remain empty
-    default:
-        panic("Invalid action: " + commandParts[0])
-    }
+	// Handle different actions
+	switch commandParts[0] {
+	case "RenombrarBase":
+		if len(commandParts) > 3 {
+			req.NewBase = commandParts[3]
+		}
+	case "AgregarBase", "ActualizarValor":
+		if len(commandParts) > 3 {
+			value, err := strconv.Atoi(commandParts[3])
+			if err != nil {
+				panic("Invalid value: " + err.Error())
+			}
+			req.Value = int32(value)
+		}
+	case "BorrarBase":
+		// Do nothing, NewBase and Value should remain empty
+	default:
+		panic("Invalid action: " + commandParts[0])
+	}
 
-    res, err := serviceClient.ApplyCommand(context.Background(), req)
-    if err != nil {
-        panic("Message could not be created or sent: " + err.Error())
-    }
+	res, err := serviceClient.ApplyCommand(context.Background(), req)
+	if err != nil {
+		panic("Mensaje could not be created or sent: " + err.Error())
+	}
 
 	strClock := make([]string, len(res.VectorClock))
-    for i, num := range res.VectorClock {
-        strClock[i] = strconv.Itoa(int(num))
-    }
+	for i, num := range res.VectorClock {
+		strClock[i] = strconv.Itoa(int(num))
+	}
 
-    return strings.Join(strClock, ",")
+	return strings.Join(strClock, ",")
 }
 
 // Procesa los comandos del usuario (Consulta a broker, luego a Fulcrum).
@@ -124,23 +124,22 @@ func processMsg(command string) {
 	var comando = strings.Split(command, " ")
 
 	// Validate the command
-    if len(comando) < 3 {
-        fmt.Println("Invalid command. Expected at least 3 parts.")
-        return
-    }
+	if len(comando) < 3 {
+		fmt.Println("Invalid command. Expected at least 3 parts.")
+		return
+	}
 
 	// Validate the action
-    var validActions = map[string]bool{
-        "AgregarBase":     true,
-        "ActualizarValor": true,
-        "BorrarBase":      true,
-        "RenombrarBase":   true,
-    }
-    if !validActions[comando[0]] {
-        fmt.Println("Invalid action. Expected one of: AgregarBase, ActualizarValor, BorrarBase, RenombrarBase.")
-        return
-    }
-
+	var validActions = map[string]bool{
+		"AgregarBase":     true,
+		"ActualizarValor": true,
+		"BorrarBase":      true,
+		"RenombrarBase":   true,
+	}
+	if !validActions[comando[0]] {
+		fmt.Println("Invalid action. Expected one of: AgregarBase, ActualizarValor, BorrarBase, RenombrarBase.")
+		return
+	}
 
 	//Se recibe la ip para el fulcrum
 	respuesta := enviarMsg(direccionBroker, command)
@@ -189,20 +188,20 @@ func processMsg(command string) {
 }
 
 func scanMsg() (mensaje string) {
-    scanner := bufio.NewScanner(os.Stdin)
-    fmt.Println("Escriba el comando a ejecutar (0 para cerrar programa)")
-    fmt.Println("Recuerde ser consistente con mayúsculas y minúsculas para los comandos")
-    for scanner.Scan() {
-        mensaje = scanner.Text()
-        if mensaje != "" {
-            break
-        }
-        fmt.Println("Input cannot be empty. Please enter a command:")
-    }
-    if scanner.Err() != nil {
-        fmt.Println("Error reading input:", scanner.Err())
-    }
-    return
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Escriba el comando a ejecutar (0 para cerrar programa)")
+	fmt.Println("Recuerde ser consistente con mayúsculas y minúsculas para los comandos")
+	for scanner.Scan() {
+		mensaje = scanner.Text()
+		if mensaje != "" {
+			break
+		}
+		fmt.Println("Input cannot be empty. Please enter a command:")
+	}
+	if scanner.Err() != nil {
+		fmt.Println("Error reading input:", scanner.Err())
+	}
+	return
 }
 
 func main() {
