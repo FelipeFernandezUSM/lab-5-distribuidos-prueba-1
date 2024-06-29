@@ -54,7 +54,7 @@ func NewFulcrumServer(id int) *FulcrumServer {
 }
 
 func (s *FulcrumServer) ProcessVanguardMessage(ctx context.Context, in *pb.Message) (*pb.Acknowledgement, error) {
-    fmt.Println("Vanguard request received:", in.Sector, in.Base)
+    fmt.Println("Pedido de comandante recibido:", in.Sector, in.Base)
     // Get the stored vector clock for the sector
     storedClock, ok := s.vClocks[in.Sector]
     if !ok {
@@ -104,7 +104,7 @@ func (s *FulcrumServer) ProcessVanguardMessage(ctx context.Context, in *pb.Messa
     }
 
     // If no matching sector and base were found, return an error
-    return nil, errors.New("sector and base not found")
+    return nil, errors.New("Sector y base no encontrado")
 }
 
 func (s *FulcrumServer) AgregarBase(sector string, base string, quantity int) {
@@ -548,6 +548,7 @@ func (s *FulcrumServer) PropagateChanges() {
             }
 
             // Send the message to the other server
+            fmt.Println(ctx)
             _, err := fulcrumClient.ApplyPropagation(ctx, message)
             if err != nil {
                 log.Println("Failed to propagate changes to server:", err)
@@ -633,7 +634,7 @@ func main() {
     }()
 
     // Start a gRPC server
-    lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 50055+id))
+    lis, err := net.Listen("tcp", fmt.Sprintf("fulcrum%d:%d", id, 50055+id))
     if err != nil {
         log.Fatalf("Failed to listen: %v", err)
     }
