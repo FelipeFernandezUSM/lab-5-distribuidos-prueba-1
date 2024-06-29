@@ -8,7 +8,7 @@ option go_package = "github.com/FelipeFernandezUSM/lab-5-distribuidos-prueba-1/p
 
 service Fulcrum {
   rpc ApplyCommand(CommandRequest) returns (CommandResponse) {}
-  rpc ProcessVanguardMessage(broker.Message) returns (broker.Acknowledgement) {}
+  rpc ProcessCommandMessage(broker.Mensaje) returns (broker.Notificacion) {}
   rpc ApplyPropagation(Propagation) returns (PropagationResponse) {}
 }
 
